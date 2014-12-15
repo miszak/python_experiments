@@ -56,11 +56,57 @@ def matrix_multiply(m1, m2):
 				mr[i][j] += m1[i][k] * m2[k][j]
 	return mr
 
+def get_submatrix(m, ri, rj):
+	r = []
+	new_i = 0
+	for i in range(len(m)):
+		if i == ri:
+			continue
+		r.append([])
+		for j in range(len(m)):
+			if j != rj:
+				r[new_i].append(m[i][j])
+		new_i += 1
+	return r
+
+def matrix_complement(m, i, j):
+	Mij = get_submatrix(m, i, j)
+	return matrix_determinant(Mij) * (-1 if ((i+j)%2) else 1)
+
 def matrix_determinant(m):
-	pass
+	matrixSize = len(m)
+
+	if matrixSize == 1:
+		return m[0][0]
+
+	if matrixSize == 2:
+		return m[0][0] * m[1][1] - m[0][1] * m[1][0]
+
+	detM = 0
+	j = 0
+	for i in range(matrixSize):
+		if m[i][j] == 0:
+			continue
+		detM += matrix_complement(m, i, j) * m[i][j]
+	return detM
 
 def matrix_inverse(m):
-	pass
+	matrix_size = len(m)
+
+	cm = []
+	for i in range(matrix_size):
+		cm.append([])
+		for j in range(matrix_size):
+			cm[i].append(matrix_complement(m, i, j))
+
+	cmt = matrix_transpose(cm)
+
+	detM = matrix_determinant(m)
+	for i in range(matrix_size):
+		for j in range(matrix_size):
+			cmt[i][j] /= detM
+
+	return cmt
 
 ma1 = [[1,2,3],[4,5,6]]
 ma2 = [[1,2,3],[4,5,6]]
@@ -89,6 +135,10 @@ assert(matrix_2x2_multiply([[1,0],[0,1]], [[0,1],[1,0]]) == [[0,1],[1,0]])
 assert(matrix_multiply([[1,0],[0,1]], [[0,1],[1,0]]) == [[0,1],[1,0]])
 assert(matrix_multiply([[4,5,-5],[-1,-4,-2],[-3,1,5],[2,1,4]], [[-4,4,-1,3,-4],[-1,-5,-5,4,-5],[-1,-1,0,-1,1]]) == [[-16,-4,-29,37,-46],[10,18,21,-17,22],[6,-22,-2,-10,12],[-13,-1,-7,6,-9]])
 
+assert(matrix_determinant([[4,2,-5,8], [1,1,-2,0], [4,0,0,0], [3,-1,-2,4]]) == -112)
+assert(matrix_determinant([[0,5,5,-2], [-1,1,-4,-3], [0,-2,1,4], [3,0,-5,0]]) == 203)
 
+assert(matrix_inverse([[2,1], [5,3]]) == [[3,-1],[-5,2]])
+assert(matrix_inverse([[2,5,7], [6,3,4], [5,-2,-3]]) == [[1,-1,1],[-38,41,-34],[27,-29,24]])
 
 
